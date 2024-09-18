@@ -348,7 +348,7 @@ T_reduce = TypeVar("T_reduce")
 # TODO: Implement "Conquer and divide" approach for sized iterables
 def reduce(
     x: Iterable[T_reduce], func: Callable[[T_reduce, T_reduce], T_reduce]
-) -> T_reduce:
+) -> Any:
     """Higher-order function that reduces an iterable to a single value using a given function
 
     Args:
@@ -365,7 +365,7 @@ def reduce(
     try:
         result = next(iterator)
     except StopIteration:
-        raise ValueError("Cannot reduce an empty iterable")
+        return 0 # This is stupid
     for item in iterator:
         result = func(result, item)
     return result
