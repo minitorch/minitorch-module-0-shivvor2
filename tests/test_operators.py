@@ -20,9 +20,9 @@ from minitorch.operators import (
     neg,
     negList,
     prod,
+    sigmoid,
     relu,
     relu_back,
-    sigmoid,
 )
 
 from .strategies import assert_close, small_floats
@@ -105,10 +105,27 @@ def test_sigmoid(a: float) -> None:
     * It is always between 0.0 and 1.0.
     * one minus sigmoid is the same as sigmoid of the negative
     * It crosses 0 at 0.5
-    * It is  strictly increasing.
+    * It is strictly increasing.
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    # Check for range
+    assert sigmoid(a) >= 0
+    assert sigmoid(a) <= 1
+    
+    # Check "sigmoid of the negative"
+    assert_close(float(1 - sigmoid(a)), sigmoid(-a))
+    
+    # Check value where function crosses x_axis
+    if a == 0:
+        assert_close(sigmoid(a), 0.5)
+
+    # Check strictly increasing
+    # For big values of a (>= 35), the decimal places of exp is saturated
+    # Resulting into sigmoid(x_i), sigmoid(x_j) taking same values for different
+    # x_i and x_j
+    if abs(a) < 30:
+        assert sigmoid(a) < sigmoid(float(a + 0.1))
+    
 
 
 @pytest.mark.task0_2
@@ -116,32 +133,39 @@ def test_sigmoid(a: float) -> None:
 def test_transitive(a: float, b: float, c: float) -> None:
     """Test the transitive property of less-than (a < b and b < c implies a < c)"""
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    if lt(a,b) and lt(b,c):
+        assert lt(a,c)
 
 
 @pytest.mark.task0_2
-def test_symmetric() -> None:
+@given(small_floats, small_floats)
+def test_symmetric(a: float, b: float) -> None:
     """Write a test that ensures that :func:`minitorch.operators.mul` is symmetric, i.e.
     gives the same value regardless of the order of its input.
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    assert mul(a,b) == mul(b,a)
 
 
 @pytest.mark.task0_2
-def test_distribute() -> None:
+@given(small_floats, small_floats, small_floats)
+def test_distribute(x: float, y: float, z: float) -> None:
     r"""Write a test that ensures that your operators distribute, i.e.
     :math:`z \times (x + y) = z \times x + z \times y`
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    assert_close(mul(z, add(x, y)), add(mul(z,x), mul(z,y)))
+
 
 
 @pytest.mark.task0_2
-def test_other() -> None:
+@given(small_floats)
+def test_inv(a: float) -> None:
     """Write a test that ensures some other property holds for your functions."""
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    if a != 0:
+        assert inv(a) == 1/a
+
 
 
 # ## Task 0.3  - Higher-order functions
@@ -169,8 +193,7 @@ def test_sum_distribute(ls1: List[float], ls2: List[float]) -> None:
     is the same as the sum of each element of `ls1` plus each element of `ls2`.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError("Need to implement for Task 0.3")
-
+    assert_close(sum(ls1) + sum(ls2), sum(addLists(ls1, ls2)))
 
 @pytest.mark.task0_3
 @given(lists(small_floats))
